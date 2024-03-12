@@ -76,7 +76,7 @@ def upload_call(files: List[UploadFile]) -> Call:
 
     ##Valid Upload, Process Call Here##
     try:
-        call = handle_new_call(Call(**json.load(calljsonfile.file)), audiofile)
+        call = handle_new_call(calljsonfile, audiofile)
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call
