@@ -4,7 +4,6 @@ from typing import Optional, List
 from pydantic import validator, BaseModel
 
 class Frequency(BaseModel):
-    id: Optional[int]
     freq: int
     time: datetime
     pos: float

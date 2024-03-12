@@ -27,8 +27,7 @@ def mock_call(x:int=0) -> Call:
 "audio_type": "analog",
 "short_name": "Westford",
 "freqList": [ {"freq": 483125000, "time": 1709424137, "pos": 0.00, "len": 6.43, "error_count": "0", "spike_count": "0"}, {"freq": 483125000, "time": 1709424143, "pos": 6.43, "len": 3.07, "error_count": "0", "spike_count": "0"}, {"freq": 483125000, "time": 1709424146, "pos": 9.50, "len": 1.57, "error_count": "0", "spike_count": "0"} ],
-"srcList": [ {"src": 0, "time": 1709424137, "pos": 0.00, "emergency": 0, "signal_system": "", "tag": "Dispatch"}, {"src": 8960, "time": 1709424143, "pos": 6.43, "emergency": 0, "signal_system": "", "tag": ""}, {"src": 0, "time": 1709424146, "pos": 9.50, "emergency": 0, "signal_system": "", "tag": "Dispatch"} ],
-"tones": {}
+"srcList": [ {"src": 0, "time": 1709424137, "pos": 0.00, "emergency": 0, "signal_system": "", "tag": "Dispatch"}, {"src": 8960, "time": 1709424143, "pos": 6.43, "emergency": 0, "signal_system": "", "tag": ""}, {"src": 0, "time": 1709424146, "pos": 9.50, "emergency": 0, "signal_system": "", "tag": "Dispatch"} ]
 }
 '''
     data = json.loads(j)

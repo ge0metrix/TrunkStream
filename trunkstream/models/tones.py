@@ -25,7 +25,7 @@ class DTMFTone(ToneBase):
     key: str
 
 class DetectedTones(BaseModel):
-    dtmf: Optional[DTMFTone]
-    hi_low: Optional[HiLow]
-    qc: Optional[QuickCall]
-    long: Optional[LongTone]
+    dtmf: Optional[List[DTMFTone]]
+    hi_low: Optional[List[HiLow]]
+    qc: Optional[List[QuickCall]]
+    long: Optional[List[LongTone]]

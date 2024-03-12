@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import validator, BaseModel
+from pydantic import validator, BaseModel, JsonValue
 
-from . import source, frequency
+from . import source as _source
+from . import frequency as _frequency 
+from . import tones as _tones
 
 class Call(BaseModel):
     id: Optional[int]
@@ -23,6 +25,7 @@ class Call(BaseModel):
     talkgroup_group_tag: str
     audio_type: str
     short_name: str
-    freqList: List[frequency.Frequency]
-    srcList: List[source.Source]
-
+    freqList: List[_frequency.Frequency]
+    srcList: List[_source.Source]
+    tones: Optional[List[_tones.DetectedTones]] = None
+    transcript: Optional[JsonValue] = None

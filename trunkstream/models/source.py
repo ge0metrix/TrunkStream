@@ -4,7 +4,6 @@ from typing import Optional, List
 from pydantic import validator, BaseModel
 
 class Source(BaseModel):
-    id: Optional[int] 
     src: int
     time: datetime
     pos: float

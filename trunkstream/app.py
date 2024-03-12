@@ -32,23 +32,24 @@ def on_startup():
 
 
 @app.get("/")
-async def root():
+async def root() -> RedirectResponse:
     return RedirectResponse("/docs")
 
-@app.get("/calls", response_model=List[Call], response_model_exclude_none=True)
-def get_calls(skip: int = 0, limit: int = 10) -> list[Call]:
+@app.get("/calls", response_model=List[Call], response_model_exclude_none=True, name="Get Lots of Calls")
+def get_multiple_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     if (limit >= 100) or (limit < 1):
         raise HTTPException(status_code=400, detail="Limit out of bounts 1-100")
 
-    return [mock_call(x) for x in range(skip, limit)]
+    return calls.get_calls(skip=skip, limit=limit)
 
 @app.get("/calls/{callid}", response_model=Call, response_model_exclude_none=True)
 def get_single_call(callid: int) -> Call:
-    return mock_call(callid)
+    return calls.get_call(callid)
 
 @app.post("/calls/upload")
 def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
+    """ Upload a call JSON and Call Audio files. Returns the Updated Call Object. """
 
     if not calljsonfile or not audiofile:
         raise HTTPException(
@@ -73,4 +74,5 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
 
 @app.post("/calls/{callid}/transcript")
 def add_transcription_to_call(callid: int, transcript:str):
+    """ Adds a transcript to an existing call identified by callid """
     pass
