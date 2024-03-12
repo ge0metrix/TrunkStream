@@ -23,6 +23,6 @@ class Call(SQLModel):
     talkgroup_group_tag: str
     audio_type: str
     short_name: str
-    freqList: "List[frequency.Frequency]"
-    srcList: "List[source.Source]"
+    freqList: List[frequency.Frequency]
+    srcList: List[source.Source]
 

@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, UploadFile
 from sqlmodel import create_engine, SQLModel, Session, select
 
 from .models import *
+from .controllers import *
 import json
 
 
@@ -74,6 +75,8 @@ def upload_call(files: List[UploadFile]) -> Call:
         )
 
     ##Valid Upload, Process Call Here##
-
-    call = Call(**json.load(calljsonfile.file))
+    try:
+        call = handle_new_call(Call(**json.load(calljsonfile.file)), audiofile)
+    except FileUploadException as e:
+        raise HTTPException(status_code=422)
     return call
