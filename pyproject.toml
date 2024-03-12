@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "trunkstream"
+version = "0.1.0"
+description = ""
+authors = ["Adam Brenden <abrenden@vistaprint.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+sqlmodel = "^0.0.16"
+python-multipart = "^0.0.9"
+
+
+[tool.poetry.group.dev.dependencies]
+uvicorn = "^0.27.1"
+pytest = "^8.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
