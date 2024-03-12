@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.responses import RedirectResponse
 from sqlmodel import create_engine, SQLModel, Session, select
 
 from .models import *
@@ -32,9 +33,9 @@ def on_startup():
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return RedirectResponse("/docs")
 
-@app.get("/calls/", response_model=List[Call], response_model_exclude_none=True)
+@app.get("/calls", response_model=List[Call], response_model_exclude_none=True)
 def get_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     if (limit >= 100) or (limit < 1):
@@ -46,19 +47,8 @@ def get_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 def get_single_call(callid: int) -> Call:
     return mock_call(callid)
 
-@app.post("/calls/upload/")
-def upload_call(files: List[UploadFile]) -> Call:
-
-    if len(files) != 2:
-        raise HTTPException(status_code=400)
-
-    calljsonfilelist = [f for f in files if f.content_type and f.content_type == 'application/json']
-    calljsonfile = calljsonfilelist[0] if calljsonfilelist else None
-
-    audiofilelist = [
-        f for f in files if f.content_type and f.content_type == 'audio/x-m4a'
-    ]
-    audiofile = audiofilelist[0] if audiofilelist else None
+@app.post("/calls/upload")
+def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
 
     if not calljsonfile or not audiofile:
         raise HTTPException(
@@ -80,3 +70,7 @@ def upload_call(files: List[UploadFile]) -> Call:
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call
+
+@app.post("/calls/{callid}/transcript")
+def add_transcription_to_call(callid: int, transcript:str):
+    pass

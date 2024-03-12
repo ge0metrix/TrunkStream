@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import validator
-from sqlmodel import Field, SQLModel
+from pydantic import validator, BaseModel
 
-class Frequency(SQLModel):
-    id: Optional[int] =  Field(default=None, primary_key=True)
+class Frequency(BaseModel):
+    id: Optional[int]
     freq: int
     time: datetime
     pos: float

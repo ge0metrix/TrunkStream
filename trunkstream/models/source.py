@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import validator
-from sqlmodel import Field, SQLModel
+from pydantic import validator, BaseModel
 
-class Source(SQLModel):
-    id: Optional[int] =  Field(default=None, primary_key=True)
+class Source(BaseModel):
+    id: Optional[int] 
     src: int
     time: datetime
     pos: float

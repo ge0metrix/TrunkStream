@@ -1,14 +1,14 @@
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import validator
-from sqlmodel import Field, SQLModel
+from pydantic import validator, BaseModel
+
 from . import source, frequency
 
-class Call(SQLModel):
-    id: Optional[int] =  Field(default=None, primary_key=True)
+class Call(BaseModel):
+    id: Optional[int]
     freq: int
-    start_time: datetime = Field(index=True)
+    start_time: datetime
     stop_time: datetime
     emergency: bool
     priority: int
