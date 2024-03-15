@@ -12,6 +12,7 @@ sqlmodel = "^0.0.16"
 python-multipart = "^0.0.9"
 icad-tone-detection = {git = "https://github.com/TheGreatCodeholio/icad_tone_detection.git"}
 pymongo = {version = "3.11", extras = ["srv"]}
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
