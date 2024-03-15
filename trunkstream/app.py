@@ -1,11 +1,9 @@
-import json
 from typing import List
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import RedirectResponse
 
 from .controllers import *
-from .dbmodels import database
 from .models import *
 
 app = FastAPI()
@@ -26,7 +24,7 @@ def get_multiple_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     if (limit >= 100) or (limit < 1):
         raise HTTPException(status_code=400, detail="Limit out of bounts 1-100")
-    calllist = calls.get_calls(skip=skip, limit=limit)
+    calllist: List[Call] = calls.get_calls(skip=skip, limit=limit)
     if not calllist:
         raise HTTPException(status_code=404, detail="No calls found!")
 
