@@ -4,28 +4,34 @@ from pydantic import validator, BaseModel, Field
 
 
 class ToneBase(BaseModel):
-    occured: float
+    start: Optional[float]
+    end: Optional[float]
     tone_id: str
 
-class HiLow(ToneBase):
-    actual: List[float] = Field(max_length=2, min_length=2)
+class HiLowTones(ToneBase):
+    tones: List[float] = Field(max_length=2, min_length=2)
 
 
-class QuickCall(ToneBase):
-    actual: List[float] = Field(max_length=2, min_length=2)
-    exact: List[float] = Field(max_length=2, min_length=2)
+class QuickCallTones(ToneBase):
+    detected: List[float] = Field(max_length=2, min_length=2)
+
 
 
 class LongTone(ToneBase):
-    actual: float
-    exact: Optional[float] = 0.0
+    detected: float
 
 
 class DTMFTone(ToneBase):
     key: str
 
+    @validator("key")
+    def valid_dtmf_key(cls, value):
+        if value in ['1','2','3','4','5','6','7','8','9','#','0','*','A','B','C','D']:
+            return value
+        raise ValueError("Not a valid DTMF Key")
+
 class DetectedTones(BaseModel):
-    dtmf: Optional[List[DTMFTone]]
-    hi_low: Optional[List[HiLow]]
-    qc: Optional[List[QuickCall]]
-    long: Optional[List[LongTone]]
+    #dtmf: List[DTMFTone] = Field(default_factory=list)
+    hi_low: List[HiLowTones] = Field(default_factory=list)
+    quick_call: List[QuickCallTones] = Field(default_factory=list)
+    long: List[LongTone] = Field(default_factory=list)

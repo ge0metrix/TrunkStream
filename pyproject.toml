@@ -10,6 +10,8 @@ python = "^3.11"
 fastapi = "^0.110.0"
 sqlmodel = "^0.0.16"
 python-multipart = "^0.0.9"
+icad-tone-detection = {git = "https://github.com/TheGreatCodeholio/icad_tone_detection.git"}
+pymongo = {version = "3.11", extras = ["srv"]}
 
 
 [tool.poetry.group.dev.dependencies]

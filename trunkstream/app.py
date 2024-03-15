@@ -2,33 +2,20 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import RedirectResponse
-from sqlmodel import create_engine, SQLModel, Session, select
 
 from .models import *
 from .controllers import *
+from .dbmodels import database
 import json
 
 
 
-
-sqlite_file_name = "database.db"
-sqlite_file_name = ":memory:"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
-
-
-def create_db_and_tables():
-    pass
-    #SQLModel.metadata.create_all(engine)
-
-
 app = FastAPI()
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+
+
+
+
 
 
 @app.get("/")
@@ -40,12 +27,18 @@ def get_multiple_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     if (limit >= 100) or (limit < 1):
         raise HTTPException(status_code=400, detail="Limit out of bounts 1-100")
+    calllist = calls.get_calls(skip=skip, limit=limit)
+    if not calllist:
+        raise HTTPException(status_code=404, detail="No calls found!")
 
-    return calls.get_calls(skip=skip, limit=limit)
+    return calllist
 
 @app.get("/calls/{callid}", response_model=Call, response_model_exclude_none=True)
-def get_single_call(callid: int) -> Call:
-    return calls.get_call(callid)
+def get_single_call(callid: str) -> Call:
+    call = calls.get_call(callid)
+    if not call:
+        raise HTTPException(status_code=404, detail="Call Not Found")
+    return call
 
 @app.post("/calls/upload")
 def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
