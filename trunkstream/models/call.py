@@ -30,6 +30,6 @@ class Call(BaseModel):
     short_name: str
     freqList: List[_frequency.Frequency]
     srcList: List[_source.Source]
-    tones: Optional[List[_tones.DetectedTones]] = None
+    tones: Optional[_tones.DetectedTones] = _tones.DetectedTones()
     transcript: Optional[JsonValue] = None
     filepath: Optional[str] = ""

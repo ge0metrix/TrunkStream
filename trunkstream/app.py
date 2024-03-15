@@ -6,6 +6,12 @@ from fastapi.responses import RedirectResponse
 from .controllers import *
 from .models import *
 
+
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 app = FastAPI()
 
 
@@ -39,10 +45,10 @@ def get_single_call(callid: str) -> Call:
     return call
 
 
-@app.post("/calls/upload")
+@app.post("/calls/upload", response_model=Call)
 def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
     """Upload a call JSON and Call Audio files. Returns the Updated Call Object."""
-
+    logger.info(calljsonfile.filename)
     if not calljsonfile or not audiofile:
         raise HTTPException(
             status_code=400, detail="Must upload a CallJSON and Audio File"
