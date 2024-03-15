@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
-from pydantic import validator, BaseModel
+from pydantic import BaseModel, validator
+
 
 class Source(BaseModel):
     src: int

@@ -1,28 +1,27 @@
+import json
 from typing import List
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import RedirectResponse
 
-from .models import *
 from .controllers import *
 from .dbmodels import database
-import json
-
-
+from .models import *
 
 app = FastAPI()
-
-
-
-
-
 
 
 @app.get("/")
 async def root() -> RedirectResponse:
     return RedirectResponse("/docs")
 
-@app.get("/calls", response_model=List[Call], response_model_exclude_none=True, name="Get Lots of Calls")
+
+@app.get(
+    "/calls",
+    response_model=List[Call],
+    response_model_exclude_none=True,
+    name="Get Lots of Calls",
+)
 def get_multiple_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     if (limit >= 100) or (limit < 1):
@@ -33,6 +32,7 @@ def get_multiple_calls(skip: int = 0, limit: int = 10) -> list[Call]:
 
     return calllist
 
+
 @app.get("/calls/{callid}", response_model=Call, response_model_exclude_none=True)
 def get_single_call(callid: str) -> Call:
     call = calls.get_call(callid)
@@ -40,9 +40,10 @@ def get_single_call(callid: str) -> Call:
         raise HTTPException(status_code=404, detail="Call Not Found")
     return call
 
+
 @app.post("/calls/upload")
 def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
-    """ Upload a call JSON and Call Audio files. Returns the Updated Call Object. """
+    """Upload a call JSON and Call Audio files. Returns the Updated Call Object."""
 
     if not calljsonfile or not audiofile:
         raise HTTPException(
@@ -65,7 +66,8 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
         raise HTTPException(status_code=422)
     return call
 
+
 @app.post("/calls/{callid}/transcript")
-def add_transcription_to_call(callid: int, transcript:str):
-    """ Adds a transcript to an existing call identified by callid """
+def add_transcription_to_call(callid: int, transcript: str):
+    """Adds a transcript to an existing call identified by callid"""
     pass

@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import Annotated, Optional, List
+from typing import Annotated, List, Optional
 
-from pydantic import BeforeValidator, Field, validator, BaseModel, JsonValue
+from pydantic import BaseModel, BeforeValidator, Field, JsonValue, validator
 
+from . import frequency as _frequency
 from . import source as _source
-from . import frequency as _frequency 
 from . import tones as _tones
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
+
 
 class Call(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
