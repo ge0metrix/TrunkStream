@@ -10,7 +10,7 @@ python = "^3.11"
 fastapi = "^0.110.0"
 sqlmodel = "^0.0.16"
 python-multipart = "^0.0.9"
-icad-tone-detection = {git = "https://github.com/TheGreatCodeholio/icad_tone_detection.git"}
+icad-tone-detection = "^0.5"
 pymongo = {version = "3.11", extras = ["srv"]}
 python-dotenv = "^1.0.1"
 

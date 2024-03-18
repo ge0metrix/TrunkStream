@@ -5,11 +5,10 @@ from icad_tone_detection import tone_detect
 
 from ..dbmodels import database
 from ..models import *
-
+import os
 import logging
 
-logger = logging.Logger(__name__)
-
+logger = logging.getLogger("uvicorn.error")
 
 class FileUploadException(Exception):
     pass
@@ -19,8 +18,9 @@ def handle_new_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
     calldata = Call(**json.load(calljsonfile.file))
     filepath = f"./uploads/{audiofile.filename}"
     try:
-        with open(filepath, "wb") as f:
-            f.write(audiofile.file.read())
+        if os.environ.get("TS_SAVELOCAL", None):
+            with open(filepath, "wb") as f:
+                f.write(audiofile.file.read())
         calldata.filepath = filepath
         audiofile.file.seek(0)
         try: 
