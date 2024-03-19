@@ -1,6 +1,7 @@
 from typing import List
+from io import BytesIO
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import RedirectResponse
 
 from .controllers import *
@@ -9,9 +10,11 @@ from .models import *
 
 import logging
 
-logger = logging.getLogger("uvicorn.error")
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+
 
 
 @app.get("/")
@@ -45,7 +48,7 @@ def get_single_call(callid: str) -> Call:
 
 
 @app.post("/calls/upload", response_model=Call)
-def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
+def upload_call(calljsonfile: UploadFile, audiofile: UploadFile, background_tasks: BackgroundTasks) -> Call:
     """Upload a call JSON and Call Audio files. Returns the Updated Call Object."""
     logger.debug(calljsonfile.filename)
     if not calljsonfile or not audiofile:
@@ -64,7 +67,7 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
 
     ##Valid Upload, Process Call Here##
     try:
-        call = handle_new_call(calljsonfile, audiofile)
+        call:Call = handle_new_call(calljsonfile, audiofile)
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call
@@ -72,5 +75,10 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
 
 @app.post("/calls/{callid}/transcript")
 def add_transcription_to_call(callid: int, transcript: str):
-    """Adds a transcript to an existing call identified by callid"""
+    pass
+
+@app.post("/transcribe/{callid}")
+def transcribe_post(callid:str, audiofile:UploadFile):
+    
+    return transcribe_call(callid=callid, callaudio=audiofile.file)
     pass

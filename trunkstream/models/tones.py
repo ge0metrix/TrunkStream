@@ -10,7 +10,7 @@ class ToneBase(BaseModel):
 
 
 class HiLowTones(ToneBase):
-    tones: List[float] = Field(max_length=2, min_length=2)
+    detected: List[float] = Field(max_length=2, min_length=2)
 
 
 class QuickCallTones(ToneBase):
