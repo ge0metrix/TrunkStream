@@ -71,14 +71,3 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile, background_task
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call
-
-
-@app.post("/calls/{callid}/transcript")
-def add_transcription_to_call(callid: int, transcript: str):
-    pass
-
-@app.post("/transcribe/{callid}")
-def transcribe_post(callid:str, audiofile:UploadFile):
-    
-    return transcribe_call(callid=callid, callaudio=audiofile.file)
-    pass

@@ -34,20 +34,24 @@ def handle_new_call(calljsonfile: UploadFile, audiofile: UploadFile) -> Call:
                     logger.warn(f"Tones detected: {calldata.tones}")
                 else:
                     logger.info(f"No tones detected: {calldata.tones}")
+
+                ts = transcribe_call(callaudio=filepath)
+                calldata.transcript=ts
+                logger.info(calldata.transcript.transcript.replace("\n", "  -  "))
+
             else:
                 logger.warn(f"Call Too Short: {calldata.call_length}")
                 
         except ValueError as e:
             logger.warn(e)
             logger.warn(t)
-        ts = transcribe_call(callid="x", callaudio=filepath)
-        calldata.transcript=ts
+
         inserted = database.collection.insert_one(
             calldata.model_dump(by_alias=True, exclude=["id"])  # type: ignore
         )
         logger.info(f"{calldata.talkgroup_tag} - New document _ID: {inserted.inserted_id}")
         newcall: Call = database.collection.find_one({"_id": inserted.inserted_id})  # type: ignore
-        logger.info(newcall)
+        #logger.info(newcall)
         if not os.environ.get("TS_KEEPAUDIOFILES", None):
             os.remove(filepath)
     except Exception as e:

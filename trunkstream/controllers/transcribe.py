@@ -1,47 +1,29 @@
 import glob
 import logging
 import os
-from typing import BinaryIO
 import warnings
 from datetime import datetime, timedelta
 from io import FileIO
 from pprint import pprint
 from time import time
+from typing import BinaryIO
 
 from faster_whisper import WhisperModel, download_model
+
 from ..models import *
 
 logger = logging.getLogger(__name__)
 
-
-def timed(func):
-    # This function shows the execution time of
-    # the function object passed
-    def wrap_func(*args, **kwargs):
-        t1 = time()
-        result = func(*args, **kwargs)
-        t2 = time()
-        logger.info(f"Function {func.__name__!r} executed in {(t2-t1):.4f}s")
-        return result
-
-    return wrap_func
-
-
 config_data = {
-    "log_level": 1,
-    "audio_upload": {
-        "allowed_extensions": [".wav", ".m4a", ".mp3"],
-        "max_audio_length": 300,
-        "max_file_size": 3,
-    },
     "whisper": {
         "device": "cpu",
         "cpu_threads": 4,
         "compute_type": "float32",
-        "model": "small.en",
+        "model": "large-v3",
         "language": "en",
         "beam_size": 5,
-        "best_of": 1,
+        "best_of": 5,
+        "initial_prompt": "Westford, Control, Recieved, Car, Engine, Littleton",
         "vad_filter": True,
         "vad_parameters": {
             "threshold": 0.5,
@@ -74,33 +56,41 @@ def is_model_outdated(directory, days=7):
     # All files are within the 'days' threshold
     return False
 
-@timed
-def transcribe_call(callid: str, callaudio: str | FileIO | BinaryIO)->Transcript:
+
+def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
     if not callaudio:
         raise Exception("no call file for transcript")
 
     warnings.simplefilter("ignore")
-    model_cache_dir = "./whispermodels/"
+
+    whisperconf = config_data.get("whisper", {})
+
+    model_cache_dir = f"./whispermodels/{whisperconf.get('model', 'medium.en')}"
     model_dir = model_cache_dir
     if is_model_outdated(model_cache_dir):
         model_dir = download_model(
-            config_data.get("model", "medium.en"), output_dir=model_cache_dir
+            whisperconf.get("model", "medium.en"),
+            output_dir=model_cache_dir,
         )
 
-    if config_data.get("whisper", {}).get("device", None) in ["cpu", "cuda"]:
+    if whisperconf.get("device", None) in ["cpu", "cuda"]:
         model = WhisperModel(
             model_dir,
-            device=config_data.get("whisper", {}).get("device", "cpu"),
-            cpu_threads=config_data.get("whisper", {}).get("cpu_threads", 4),
-            compute_type=config_data.get("whisper", {}).get("compute_type", "float32"),
+            device=whisperconf.get("device", "cpu"),
+            cpu_threads=whisperconf.get("cpu_threads", 4),
+            compute_type=whisperconf.get("compute_type", "float32"),
         )
     else:
         raise Exception("No Whisper Config")
-    logger.info(f"transcribing call: {callid}") # type: ignore
+
     segments, _ = model.transcribe(
         audio=callaudio,
-        word_timestamps=False,
-        best_of=5,
+        word_timestamps=whisperconf.get("word_timestamps", False),
+        best_of=whisperconf.get("best_of", 5),
+        language=whisperconf.get("language", "en"),
+        beam_size=whisperconf.get("beam_size", 5),
+        temperature=0,
+        initial_prompt=whisperconf.get("initial_prompt", ""),
     )
 
     transcript: str = ""
@@ -127,7 +117,7 @@ def transcribe_call(callid: str, callaudio: str | FileIO | BinaryIO)->Transcript
         transcript += segment.text + "\n"
 
     transcriptdata: Transcript = Transcript(
-        id=callid, segments=segmentlist, transcript=transcript
+        id="", segments=segmentlist, transcript=transcript
     )
 
     return transcriptdata
@@ -140,4 +130,4 @@ if __name__ == "__main__":
         x += 1
         print(file)
         with open(file, "rb") as f:
-            transcribe_call(f"{x}", f)
+            transcribe_call(f)
