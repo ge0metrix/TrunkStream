@@ -28,7 +28,11 @@ loggers:
     propagate: False
     handlers:
       - access
-root:
-  level: INFO
-  handlers:
-    - default
+  trunkstream:
+    level: INFO
+    handlers:
+      - default
+  faster_whisper:
+    level: INFO
+    handlers:
+      - default

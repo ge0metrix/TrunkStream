@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 
 from .controllers import *
 from .models import *
-
+from .worker import transcribe_call_task
 
 import logging
 
@@ -67,7 +67,10 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile, background_task
 
     ##Valid Upload, Process Call Here##
     try:
-        call:Call = handle_new_call(calljsonfile, audiofile)
+        call = handle_new_call(calljsonfile, audiofile)
+        logging.info(call.id, call.talkgroup_tag)
+        x = transcribe_call_task.delay(call.id, call.filepath)
+        logging.warn(x)
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call

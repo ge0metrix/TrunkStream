@@ -89,7 +89,7 @@ def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
         best_of=whisperconf.get("best_of", 5),
         language=whisperconf.get("language", "en"),
         beam_size=whisperconf.get("beam_size", 5),
-        temperature=0,
+        temperature=0.9,
         initial_prompt=whisperconf.get("initial_prompt", ""),
     )
 
@@ -115,7 +115,7 @@ def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
         )
         segmentlist.append(seg)
         transcript += segment.text + "\n"
-
+    logger.info(transcript.replace("\n"," - "))
     transcriptdata: Transcript = Transcript(
         id="", segments=segmentlist, transcript=transcript
     )

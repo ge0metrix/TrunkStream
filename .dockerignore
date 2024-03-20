@@ -2,3 +2,6 @@
 .vscode
 .venv
 .pytest*
+__pycache__*
+dist
+examples

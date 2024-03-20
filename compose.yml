@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+
+  app:
+    container_name: app
+    build: .
+    command: bash -c "uvicorn trunkstream.app:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - .:/code
+      - upload-volume:/code/uploads
+    environment:
+      - TS_MONGOURL=${TS_MONGOURL}
+    ports:
+      - 8000:8000
+    restart: always
+
+  redis:
+    container_name: redis
+    image: redis:latest
+
+  celery_worker:
+    container_name: celery_worker
+    build: .
+    command: celery -A trunkstream.worker worker --loglevel=info -P solo
+    volumes:
+      - .:/code
+      - upload-volume:/code/uploads
+    environment:
+      - TS_MONGOURL=${TS_MONGOURL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - FLOWER_UNAUTHENTICATED_API=True
+    depends_on:
+      - app
+      - redis
+
+  flower:
+    container_name: flower
+    build: .
+    command: celery -A trunkstream.worker flower --port=5555
+    ports:
+      - 5556:5555
+    environment:
+      - TS_MONGOURL=${TS_MONGOURL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - FLOWER_UNAUTHENTICATED_API=True
+    depends_on:
+      - app
+      - redis
+      - celery_worker
+volumes:
+  upload-volume:
