@@ -67,4 +67,4 @@ def transcribe_call_task(callid, filepath) -> str:
         {"_id": ObjectId(callid)}, {"$set": {"transcript": transcript.model_dump()}}
     )
     logger.info(f"Finished Processing call: {callid} - {filepath}")
-    return call.model_dump_json()
+    return transcript.transcript

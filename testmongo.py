@@ -63,7 +63,7 @@ for r in result:
 print(x)"""
 
 
-result = client['TrunkStream']['Calls'].aggregate([
+result = client['TrunkStream']['Calls_Archive'].aggregate([
     {
         '$match': {
             '$and': [
