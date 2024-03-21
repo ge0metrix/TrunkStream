@@ -16,7 +16,7 @@ client = MongoClient("mongodb+srv://TrunkStreamer:1zxQx4BMrxueXT8q@adamtestmongo
     }
 ])
 """
-
+"""
 result = client['TrunkStreamArchive']['Calls'].aggregate([
     {
         '$addFields': {
@@ -60,4 +60,34 @@ for r in result:
     x += 1
     print(r)
 
-print(x)
+print(x)"""
+
+
+result = client['TrunkStream']['Calls'].aggregate([
+    {
+        '$match': {
+            '$and': [
+                {
+                    'talkgroup_tag': 'Westford Police'
+                }, {
+                    'transcript': {
+                        '$ne': None
+                    }
+                }
+            ]
+        }
+    }, {
+        '$project': {
+            'talkgroup_tag': 1, 
+            'start_time': 1, 
+            'transcript': '$transcript.transcript'
+        }
+    }, {
+        '$sort': {
+            'start_time': -1
+        }
+    }
+])
+
+for r in result:
+    print(r.get("start_time"), r.get("transcript"))

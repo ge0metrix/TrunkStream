@@ -23,7 +23,7 @@ config_data = {
         "language": "en",
         "beam_size": 5,
         "best_of": 5,
-        "initial_prompt": "Westford, Control, Recieved, Car, Engine, Littleton",
+        "initial_prompt": "Westford Control",
         "vad_filter": True,
         "vad_parameters": {
             "threshold": 0.5,
@@ -64,12 +64,14 @@ def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
     warnings.simplefilter("ignore")
 
     whisperconf = config_data.get("whisper", {})
-
-    model_cache_dir = f"./whispermodels/{whisperconf.get('model', 'medium.en')}"
+    modeltype = whisperconf.get('model', 'medium.en')
+    logger.info(f"Using model type: {modeltype}")
+    model_cache_dir = f"./whispermodels/{modeltype}"
     model_dir = model_cache_dir
     if is_model_outdated(model_cache_dir):
+        logger.info(f"Downloading Model {modeltype}")
         model_dir = download_model(
-            whisperconf.get("model", "medium.en"),
+            modeltype,
             output_dir=model_cache_dir,
         )
 
