@@ -27,9 +27,6 @@ smtp_server = os.environ.get("SMTPSERVER", "")
 smtp_port = os.environ.get("SMTPPORT", "")
 smtp_user = os.environ.get("SMTPUSER", "")
 smtp_pass = os.environ.get("SMTPPASS", "")
-
-uri = "mongodb+srv://TrunkStreamer:0sxvAuVHk4BFKuTJ@adamtestmongo.yqkybba.mongodb.net/?retryWrites=true&w=majority"
-
 fromemail = os.environ.get("ALERTFROMEMAIL", "")
 toemail = os.environ.get("ALERTTOEMAIL", "")
 
