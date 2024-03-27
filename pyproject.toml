@@ -19,9 +19,6 @@ redis = "^5.0.3"
 flower = "^2.0.1"
 uvicorn = "^0.27.1"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.2"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

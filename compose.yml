@@ -1,10 +1,8 @@
-version: "3.8"
-
 services:
 
-  app:
-    container_name: app
-    build: .
+  trunkstream:
+    container_name: trunkstream
+    image: docker.io/library/trunkstream-app
     command: uvicorn trunkstream.app:app --host 0.0.0.0 --port 8000
     volumes:
       - .:/code
@@ -21,25 +19,26 @@ services:
     ports:
       - 6379:6379
 
-  #celery_worker:
-  #  container_name: celery_worker
-  #  build: .
-  #  command: celery -A trunkstream.worker worker --loglevel=info -P solo
-  #  volumes:
-  #    - .:/code
-  #    - upload-volume:/code/uploads
-  #  environment:
-  #    - TS_MONGOURL=${TS_MONGOURL}
-  #    - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-  #    - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-  #    - FLOWER_UNAUTHENTICATED_API=True
-  #  depends_on:
-  #    - app
-  #    - redis
+  tones_worker:
+    container_name: tones_worker
+    image: docker.io/library/trunkstream-app
+    command: celery -A trunkstream.worker worker --loglevel=info -Q tones -E -n tones@%%h
+    volumes:
+      - .:/code
+      - ./uploads:/code/uploads
+    environment:
+      - TS_MONGOURL=${TS_MONGOURL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - FLOWER_UNAUTHENTICATED_API=True
+      - TZ=US/Eastern
+    depends_on:
+      - trunkstream
+      - redis
 
   flower:
     container_name: flower
-    build: .
+    image: docker.io/library/trunkstream-app
     command: celery -A trunkstream.worker flower --port=5555
     ports:
       - 5556:5555
@@ -48,9 +47,10 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - FLOWER_UNAUTHENTICATED_API=True
+      - TZ=US/Eastern
     depends_on:
-      - app
+      - trunkstream
       - redis
-  #    - celery_worker
+      - tones_worker
 volumes:
   upload-volume:
