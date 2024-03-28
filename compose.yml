@@ -11,8 +11,7 @@ services:
       - TS_MONGOURL=${TS_MONGOURL}
     ports:
       - 8000:8000
-    restart: always
-
+      
   redis:
     container_name: redis
     image: redis:latest
@@ -22,7 +21,7 @@ services:
   tones_worker:
     container_name: tones_worker
     image: docker.io/library/trunkstream-app
-    command: celery -A trunkstream.worker worker --loglevel=info -Q tones -E -n tones@%%h
+    command: celery -A trunkstream.worker worker --loglevel=WARNING -Q tones -E -n tones@%%h
     volumes:
       - .:/code
       - ./uploads:/code/uploads

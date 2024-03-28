@@ -1,12 +1,13 @@
 from typing import List
 from io import BytesIO
 
-from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, UploadFile, BackgroundTasks
 from fastapi.responses import RedirectResponse
-
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from .controllers import *
 from .models import *
-from .worker import transcribe_call_task
+from .worker import transcribe_call_task, detect_tones_task
 
 import logging
 
@@ -16,10 +17,16 @@ app = FastAPI()
 
 
 
+BASE_PATH = Path(__file__).resolve().parent
+TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
 @app.get("/")
-async def root() -> RedirectResponse:
-    return RedirectResponse("/docs")
+async def root(request: Request):
+    calls = get_calls(limit=99)
+    return TEMPLATES.TemplateResponse(
+    "calllist.html",
+    {"request": request, "calls":calls},
+    )
 
 
 @app.get(
@@ -46,6 +53,15 @@ def get_single_call(callid: str) -> Call:
         raise HTTPException(status_code=404, detail="Call Not Found")
     return call
 
+@app.get("/calls/tones/")
+def get_tone_calls() -> list[Call]:
+    calls = get_calls_with_tones()
+    return calls
+
+@app.get("/calls/{callid}/transcript")
+def get_call_transcript(callid: str, transcript:Transcript) -> Transcript:
+    return calls.get_call(callid).transcript
+
 
 @app.post("/calls/upload", response_model=Call)
 def upload_call(calljsonfile: UploadFile, audiofile: UploadFile, background_tasks: BackgroundTasks) -> Call:
@@ -69,8 +85,13 @@ def upload_call(calljsonfile: UploadFile, audiofile: UploadFile, background_task
     try:
         call = handle_new_call(calljsonfile, audiofile)
         logging.info(call.id, call.talkgroup_tag)
-        x = transcribe_call_task.delay(call.id, call.filepath)
-        logging.warn(x)
+        x = transcribe_call_task.delay(callid = call.id, filepath = call.filepath)
+        logging.warn(f"transcribe id: {x}")
+        if call.call_length > 2:
+            x = detect_tones_task.delay(callid = call.id, filepath = call.filepath)
+            logger.warn(f"tone detect id: {x}")
+        else:
+            logger.warn(f"Call Too Short: {call.call_length}")
     except FileUploadException as e:
         raise HTTPException(status_code=422)
     return call

@@ -4,8 +4,6 @@ import os
 import warnings
 from datetime import datetime, timedelta
 from io import FileIO
-from pprint import pprint
-from time import time
 from typing import BinaryIO
 
 from faster_whisper import WhisperModel, download_model
@@ -66,7 +64,7 @@ def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
     whisperconf = config_data.get("whisper", {})
     modeltype = whisperconf.get('model', 'medium.en')
     logger.info(f"Using model type: {modeltype}")
-    model_cache_dir = f"./whispermodels/{modeltype}"
+    model_cache_dir = f"/tmp/whispermodels/{modeltype}"
     model_dir = model_cache_dir
     if is_model_outdated(model_cache_dir):
         logger.info(f"Downloading Model {modeltype}")
@@ -91,7 +89,7 @@ def transcribe_call(callaudio: str | FileIO | BinaryIO) -> Transcript:
         best_of=whisperconf.get("best_of", 5),
         language=whisperconf.get("language", "en"),
         beam_size=whisperconf.get("beam_size", 5),
-        temperature=0.9,
+        temperature=0,
         initial_prompt=whisperconf.get("initial_prompt", ""),
     )
 

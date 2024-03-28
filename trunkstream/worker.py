@@ -24,7 +24,7 @@ uri = os.environ.get("TS_MONGOURL", "")
 
 
 smtp_server = os.environ.get("SMTPSERVER", "")
-smtp_port = os.environ.get("SMTPPORT", "")
+smtp_port: int = int(os.environ.get("SMTPPORT", 25))
 smtp_user = os.environ.get("SMTPUSER", "")
 smtp_pass = os.environ.get("SMTPPASS", "")
 fromemail = os.environ.get("ALERTFROMEMAIL", "")
@@ -68,6 +68,7 @@ def transcribe_call_task(self, callid, filepath) -> str:
             raise Exception(f"Unable to update call: {callid} with {updatecommand}")
 
         logger.info(f"Finished Processing call: {callid} - {filepath}")
+        x = alert_on_tones.delay(callid=callid)
         return transcript.transcript
     except Exception as e:
         logger.error(e)
@@ -100,9 +101,9 @@ def detect_tones_task(self, callid, filepath):
     if not update_call(callid, updatecommand):
         raise Exception(f"Unable to update call: {callid} with {updatecommand}")
 
-    if detected.has_tones:
-        x = alert_on_tones.delay(callid=callid)
-        logger.debug(f"Starting alert thread: {x}")
+    #if detected.has_tones:
+    #    x = alert_on_tones.delay(callid=callid)
+    #    logger.debug(f"Starting alert thread: {x}")
 
     return detected.model_dump_json()
 
@@ -112,7 +113,8 @@ def has_transcript(callid) -> bool:
     # query = f"{{'$and': [{{'transcript.transcript': {{'$ne': None}}}}, {{'_id': ObjectId('{callid}')}}]}}"
     # logger.info(query)
     try:
-        call: Call = Call(**collection.find_one({"_id": ObjectId(callid)}))
+        if not (call := get_call(callid)):
+            raise Exception("Call not found!")
         logger.debug(call)
         if call.transcript:
             return True
@@ -141,7 +143,7 @@ def alert_on_tones(callid: str) -> str:
     if not (call := get_call(callid=callid)):
         raise Exception("Call not found!")
 
-    if not call.tones.has_tones:
+    if not call.tones.has_tones: # type: ignore
         return f"Call: {callid} - Has NO Tones AND Transcript NO ALERT!"
 
     logger.info(f"Call: {callid} - Has Tones AND Transcript ALERT!")
