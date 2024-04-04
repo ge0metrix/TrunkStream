@@ -6,13 +6,16 @@
 </head>
  
 <body>
-    <div class="container-fluid">
-            <table class="table table-striped-columns">
+    <div class="table-responsive container-fluid">
+            <table class="table table-striped-columns table-bordered">
                 {% for call in calls %}
-                    <tr {% if call.tones.has_tones %} class="table-danger"{%endif%} >
+                    <tr {% if call.tones.has_tones %} class="table-danger" {%endif%} >
                         <td>{{call.start_time}}</td>
-                        <td> {{call.talkgroup_tag}}</td>
-                        <td><pre>{{call.transcript.transcript}}</pre></td>
+                        <td>{{call.talkgroup_tag}}</td>
+                        {% autoescape false %}
+                        <td>{{call.transcript.transcript | replace('\n','<br>')}}
+                        </td>
+                        {% endautoescape %}
                     </tr>
                 {% endfor %}
             </table>

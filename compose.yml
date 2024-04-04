@@ -9,6 +9,9 @@ services:
       - ./uploads:/code/uploads
     environment:
       - TS_MONGOURL=${TS_MONGOURL}
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
     ports:
       - 8000:8000
       
@@ -30,6 +33,9 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - FLOWER_UNAUTHENTICATED_API=True
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
       - TZ=US/Eastern
     depends_on:
       - trunkstream
@@ -46,6 +52,10 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - FLOWER_UNAUTHENTICATED_API=True
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - TZ=US/Eastern
       - TZ=US/Eastern
     depends_on:
       - trunkstream
