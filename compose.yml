@@ -9,19 +9,35 @@ services:
       - ./uploads:/code/uploads
     environment:
       - TS_MONGOURL=${TS_MONGOURL}
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
     ports:
       - 8000:8000
       
-  redis:
-    container_name: redis
-    image: redis:latest
+#  redis:
+#    container_name: redis
+#    image: redis:latest
+#    ports:
+#      - 6379:6379
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: "rabbitmq"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     ports:
-      - 6379:6379
+      - 5672:5672
+      - 8080:15672
+    restart: always
+
 
   tones_worker:
     container_name: tones_worker
+    hostname: tones_worker
     image: docker.io/library/trunkstream-app
-    command: celery -A trunkstream.worker worker --loglevel=WARNING -Q tones -E -n tones@%%h
+    command: celery -A trunkstream.worker worker --loglevel=WARNING -Q tones -E -n tones@%h
     volumes:
       - .:/code
       - ./uploads:/code/uploads
@@ -30,13 +46,17 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - FLOWER_UNAUTHENTICATED_API=True
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
       - TZ=US/Eastern
     depends_on:
       - trunkstream
-      - redis
+      - rabbitmq
 
   flower:
     container_name: flower
+    hostname: flower
     image: docker.io/library/trunkstream-app
     command: celery -A trunkstream.worker flower --port=5555
     ports:
@@ -46,10 +66,14 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - FLOWER_UNAUTHENTICATED_API=True
+      - AWS_PUBLIC_KEY=${AWS_PUBLIC_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
       - TZ=US/Eastern
     depends_on:
       - trunkstream
-      - redis
+      - rabbitmq
       - tones_worker
 volumes:
   upload-volume:
+  rabbitmq-data:

@@ -3,6 +3,9 @@ import smtplib
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import requests
+from io import BytesIO
+from typing import BinaryIO
 
 from bson import ObjectId
 from celery import Celery
@@ -36,6 +39,10 @@ logger = get_task_logger(__name__)
 celery = Celery(__name__)
 
 
+def get_audio_filedata(url) -> BinaryIO:
+    data = requests.get(url)
+    return BytesIO(data.content)
+
 @after_setup_logger.connect
 def setup_task_logger(logger, *args, **kwargs):
     for handler in logger.handlers:
@@ -60,8 +67,8 @@ def transcribe_call_task(self, callid, filepath) -> str:
 
         if not (call := get_call(callid=callid)):
             raise Exception("Call not found!")
-
-        transcript = transcribe_call(filepath)
+        callaudio = get_audio_filedata(call.filepath)
+        transcript = transcribe_call(callaudio)
 
         updatecommand = {"$set": {"transcript": transcript.model_dump()}}
         if not update_call(callid, updatecommand):
