@@ -27,6 +27,13 @@ async def root(request: Request):
     "calllist.html",
     {"request": request, "calls":calls},
     )
+@app.get("/system/{shortname}/")
+async def short(request: Request, shortname:str):
+    calls = get_calls(limit=1000, shortname=shortname)
+    return TEMPLATES.TemplateResponse(
+    "calllist.html",
+    {"request": request, "calls":calls},
+    )
 
 
 @app.get(

@@ -14,8 +14,11 @@ def get_call(callid: str) -> Call | None:
     return None
 
 
-def get_calls(skip: int = 0, limit: int = 10) -> list[Call]:
-    calls = list(database.collection.find().sort("start_time",pymongo.DESCENDING).skip(skip).limit(limit=limit))
+def get_calls(skip: int = 0, limit: int = 10, shortname:str = "") -> list[Call]:
+    filter = {}
+    if shortname != "":
+        filter = {"short_name":shortname}
+    calls = list(database.collection.find(filter).collation({ "locale": 'en', "strength": 2 }).sort("start_time",pymongo.DESCENDING).skip(skip).limit(limit=limit))
     return calls
 
 
