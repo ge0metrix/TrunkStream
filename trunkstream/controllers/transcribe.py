@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 config_data = {
     "whisper": {
         "device": "cpu",
-        "cpu_threads": 4,
+        "cpu_threads": 1,
         "compute_type": "float32",
-        "model": "large-v3",
+        "model": "small.en",
         "language": "en",
         "beam_size": 5,
         "best_of": 5,

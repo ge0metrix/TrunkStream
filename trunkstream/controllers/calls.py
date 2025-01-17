@@ -19,6 +19,7 @@ def get_calls(skip: int = 0, limit: int = 10, shortname:str = "") -> list[Call]:
     if shortname != "":
         filter = {"short_name":shortname}
     calls = list(database.collection.find(filter).collation({ "locale": 'en', "strength": 2 }).sort("start_time",pymongo.DESCENDING).skip(skip).limit(limit=limit))
+    calls = [Call(**call) for call in calls]
     return calls
 
 
@@ -32,4 +33,5 @@ def update_call(callid: str, update: Any) -> bool:
 
 def get_calls_with_tones(skip:int = 0, limit:int = 100):
     calls = list(database.collection.find({"tones.has_tones":True}).sort("start_time",pymongo.DESCENDING).skip(skip).limit(limit=limit))
+    calls = [Call(**call) for call in calls]
     return calls
