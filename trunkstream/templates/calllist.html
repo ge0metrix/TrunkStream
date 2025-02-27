@@ -45,7 +45,7 @@
                 {% autoescape false %}
                 <td colspan="4">{{call.transcript.transcript | replace('\n','<br>')}}</td>
                 {% endautoescape %}
-                <td>{% if call.tones and call.tones.has_tones %}{{call.tones.to_dict() | tojson}}{%endif%}</td>
+                <td>{% if call.tones and call.tones.has_tones %}{{call.tones}}{%endif%}</td>
             </tr>
             
             {% endfor %}
